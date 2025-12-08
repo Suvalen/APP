@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Symptom Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .disclaimer-banner {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .disclaimer-banner h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer-banner p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .emergency-alert {
+            display: none;
+            background: #dc3545;
+            color: white;
+            padding: 30px;
+            margin: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .emergency-alert.show {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .emergency-alert h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .welcome-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .welcome-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .welcome-screen p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .question-container {
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question label {
+            display: block;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .question input[type="text"],
+        .question input[type="number"],
+        .question textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .question input:focus,
+        .question textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .question textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f5f5ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .scale-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .scale-input input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+        }
+
+        .scale-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .condition-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .condition-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .probability {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .disclaimer-final {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 2px solid #ffc107;
+        }
+
+        .disclaimer-final h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer-final p {
+            color: #856404;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Medical Symptom Checker</h1>
+            <p>Educational Tool for Symptom Information</p>
+        </div>
+
+        <!-- Emergency Alert -->
+        <div class="emergency-alert" id="emergencyAlert">
+            <h2>🚨 MEDICAL EMERGENCY</h2>
+            <p id="emergencyMessage"></p>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer-banner">
+            <h3>⚠️ Important Notice</h3>
+            <p><strong>This is an EDUCATIONAL tool only.</strong> It does not diagnose medical conditions or provide medical advice. Always consult a qualified healthcare provider for proper evaluation and treatment.</p>
+        </div>
+
+        <div class="content">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <h2>Welcome to the Symptom Checker</h2>
+                <p>I'll ask you a series of questions about your symptoms to provide educational information about possible conditions.</p>
+                <p><strong>Please note:</strong> This assessment takes about 3-5 minutes and is for informational purposes only.</p>
+                <button class="btn" onclick="startAssessment()">Start Assessment</button>
+            </div>
+
+            <!-- Question Flow -->
+            <div class="question-container" id="questionContainer">
+                <div class="progress-text" id="progressText">Question 1 of 7</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 14%"></div>
+                </div>
+                
+                <div class="question" id="questionContent">
+                    <!-- Dynamic question content -->
+                </div>
+
+                <div class="button-group">
+                    <button class="btn" id="nextBtn" onclick="submitAnswer()">Next</button>
+                    <button class="btn btn-secondary" onclick="resetAssessment()">Start Over</button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" id="loadingScreen" style="display: none;">
+                <div class="loading-spinner"></div>
+                <h3>Analyzing your symptoms...</h3>
+                <p>This may take a moment</p>
+            </div>
+
+            <!-- Results -->
+            <div class="results" id="resultsScreen">
+                <h2 style="margin-bottom: 20px;">Assessment Results</h2>
+                <div id="diagnosisContent"></div>
+                
+                <div class="button-group">
+                    <button class="btn" onclick="resetAssessment()">New Assessment</button>
+                </div>
+
+                <div class="disclaimer-final">
+                    <h4>⚕️ Medical Disclaimer</h4>
+                    <p>This assessment provides general information only and does NOT diagnose medical conditions or provide medical advice. The information should not be used as a substitute for professional medical evaluation. Always consult a qualified healthcare provider for proper diagnosis and treatment. For emergencies, call 911 immediately.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentQuestion = null;
+        let currentAnswer = null;
+
+        function startAssessment() {
+            $.ajax({
+                url: '/start_assessment',
+                method: 'POST',
+                success: function(response) {
+                    $('#welcomeScreen').hide();
+                    $('#questionContainer').addClass('active').show();
+                    displayQuestion(response.question);
+                }
+            });
+        }
+
+        function displayQuestion(question) {
+            currentQuestion = question;
+            const content = $('#questionContent');
+            content.empty();
+
+            // Question label
+            const label = $('<label>').text(question.question);
+            content.append(label);
+
+            // Different input types
+            if (question.type === 'text') {
+                const input = $('<textarea>').attr({
+                    'id': 'answer',
+                    'placeholder': 'Please describe your symptom...',
+                    'required': question.required
+                });
+                content.append(input);
+
+            } else if (question.type === 'number') {
+                const input = $('<input>').attr({
+                    'type': 'number',
+                    'id': 'answer',
+                    'min': '0',
+                    'max': '120',
+                    'required': question.required
+                });
+                content.append(input);
+
+            } else if (question.type === 'scale') {
+                const scaleDiv = $('<div>').addClass('scale-input');
+                const input = $('<input>').attr({
+                    'type': 'range',
+                    'id': 'answer',
+                    'min': question.min || 1,
+                    'max': question.max || 10,
+                    'value': '5'
+                });
+                const valueDisplay = $('<div>').addClass('scale-value').text('5');
+                
+                input.on('input', function() {
+                    valueDisplay.text($(this).val());
+                });
+                
+                scaleDiv.append(input).append(valueDisplay);
+                content.append(scaleDiv);
+
+            } else if (question.type === 'choice') {
+                const options = $('<div>').addClass('options');
+                question.options.forEach((opt, idx) => {
+                    const option = $('<div>')
+                        .addClass('option')
+                        .html(`<input type="radio" name="answer" value="${opt}" id="opt${idx}"> <label for="opt${idx}">${opt}</label>`)
+                        .click(function() {
+                            $('.option').removeClass('selected');
+                            $(this).addClass('selected');
+                            $(this).find('input').prop('checked', true);
+                        });
+                    options.append(option);
+                });
+                content.append(options);
+
+            } else if (question.type === 'multiselect') {
+                const options = $('<div>').addClass('options');
+                question.options.forEach((opt, idx) => {
+                    const option = $('<div>')
+                        .addClass('option')
+                        .html(`<input type="checkbox" name="answer" value="${opt}" id="opt${idx}"> <label for="opt${idx}">${opt}</label>`)
+                        .click(function() {
+                            const checkbox = $(this).find('input');
+                            checkbox.prop('checked', !checkbox.prop('checked'));
+                            $(this).toggleClass('selected');
+                        });
+                    options.append(option);
+                });
+                content.append(options);
+            }
+
+            // Update progress
+            updateProgress();
+        }
+
+        function submitAnswer() {
+            let answer = null;
+
+            if (currentQuestion.type === 'text' || currentQuestion.type === 'number') {
+                answer = $('#answer').val();
+                if (!answer && currentQuestion.required) {
+                    alert('Please answer this question');
+                    return;
+                }
+            } else if (currentQuestion.type === 'scale') {
+                answer = parseInt($('#answer').val());
+            } else if (currentQuestion.type === 'choice') {
+                answer = $('input[name="answer"]:checked').val();
+                if (!answer && currentQuestion.required) {
+                    alert('Please select an option');
+                    return;
+                }
+            } else if (currentQuestion.type === 'multiselect') {
+                answer = [];
+                $('input[name="answer"]:checked').each(function() {
+                    answer.push($(this).val());
+                });
+                if (answer.length === 0 && currentQuestion.required) {
+                    alert('Please select at least one option');
+                    return;
+                }
+            }
+
+            $.ajax({
+                url: '/submit_answer',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    question_id: currentQuestion.id,
+                    answer: answer
+                }),
+                success: function(response) {
+                    if (response.status === 'emergency') {
+                        showEmergency(response.emergency);
+                    } else if (response.status === 'complete') {
+                        showLoading();
+                        getDiagnosis();
+                    } else if (response.status === 'continue') {
+                        displayQuestion(response.question);
+                    }
+                }
+            });
+        }
+
+        function getDiagnosis() {
+    $.ajax({
+        url: '/get_diagnosis',
+        method: 'POST',
+        success: function(response) {
+            hideLoading();
+            
+            // DEBUG: Log what we received
+            console.log("=== RESPONSE DEBUG ===");
+            console.log("Response type:", typeof response);
+            console.log("Response:", response);
+            console.log("Response.diagnosis:", response.diagnosis);
+            console.log("Response.status:", response.status);
+            
+            if (response.status === 'emergency') {
+                showEmergency(response.emergency);
+            } else {
+                // Pass the diagnosis part, not the whole response
+                showResults(response.diagnosis);
+            }
+        },
+        error: function(xhr, status, error) {
+            hideLoading();
+            console.error("Error:", error);
+            alert('Error generating diagnosis. Please try again.');
+        }
+    });
+}
+
+        function showEmergency(emergency) {
+            $('#emergencyMessage').text(emergency.message);
+            $('#emergencyAlert').addClass('show');
+            $('#questionContainer').hide();
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+        }
+
+        function showLoading() {
+            $('#questionContainer').hide();
+            $('#loadingScreen').show();
+        }
+
+        function hideLoading() {
+            $('#loadingScreen').hide();
+        }
+
+        function showResults(diagnosis) {
+            $('#diagnosisContent').html(formatDiagnosis(diagnosis));
+            $('#resultsScreen').addClass('show');
+        }
+
+function formatDiagnosis(diagnosis) {
+    console.log("=== FORMAT DIAGNOSIS DEBUG ===");
+    console.log("Raw diagnosis:", diagnosis);
+    
+    let data;
+    let jsonString = String(diagnosis);
+    
+    // Try to extract JSON from markdown code blocks or text
+    const jsonBlockMatch = jsonString.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonBlockMatch) {
+        console.log("Found JSON in markdown block");
+        jsonString = jsonBlockMatch[1].trim();
+    } else {
+        // Try to find JSON object in the text
+        const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            console.log("Found JSON object in text");
+            jsonString = jsonMatch[0];
+        }
+    }
+    
+    console.log("Extracted JSON:", jsonString);
+    
+    try {
+        data = JSON.parse(jsonString);
+        console.log("Parsed successfully:", data);
+        
+        // ⭐ CRITICAL FIX: Unwrap differential_diagnosis if present
+        if (data.differential_diagnosis) {
+            console.log("Unwrapping differential_diagnosis layer");
+            data = data.differential_diagnosis;
+        }
+        
+    } catch(e) {
+        console.error("JSON parse failed:", e);
+        console.log("Displaying as raw text");
+        return `<div class="result-section">
+            <pre style="white-space: pre-wrap; font-family: inherit; line-height: 1.8;">${diagnosis}</pre>
+        </div>`;
+    }
+    
+    // Now format the data
+    let html = '';
+    
+    // MOST LIKELY CONDITIONS
+    if (data.most_likely_conditions && data.most_likely_conditions.length > 0) {
+        html += `
+        <div class="result-section" style="border-left: 4px solid #28a745; background: #f0f9f4; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+            <h3 style="color: #28a745; margin-bottom: 15px;">🟢 Most Likely Conditions (60-70% probability)</h3>
+            ${data.most_likely_conditions.map(cond => `
+                <div style="background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <h4 style="color: #28a745; margin-bottom: 10px; font-size: 18px;">${cond.condition}</h4>
+                    <p style="margin: 8px 0; line-height: 1.6;"><strong>Why it matches:</strong> ${cond.why_it_matches}</p>
+                    <p style="margin: 8px 0; line-height: 1.6;"><strong>Typical presentation:</strong> ${cond.typical_presentation}</p>
+                    <p style="margin: 8px 0; line-height: 1.6;"><strong>Expected duration:</strong> ${cond.expected_duration}</p>
+                    <p style="margin: 8px 0; line-height: 1.6;"><strong>Self-care:</strong> ${cond.self_care}</p>
+                    <p style="margin: 8px 0; line-height: 1.6; color: #d32f2f;"><strong>⚠️ See doctor if:</strong> ${cond.when_to_see_doctor}</p>
+                </div>
+            `).join('')}
+        </div>`;
+    }
+    
+    // POSSIBLE CONDITIONS
+    if (data.possible_conditions && data.possible_conditions.length > 0) {
+        html += `
+        <div class="result-section" style="border-left: 4px solid #ffc107; background: #fffbf0; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+            <h3 style="color: #f57c00; margin-bottom: 15px;">🟡 Other Possible Conditions (20-30% probability)</h3>
+            ${data.possible_conditions.map(cond => `
+                <div style="background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <h4 style="color: #f57c00; margin-bottom: 10px; font-size: 18px;">${cond.condition}</h4>
+                    <p style="margin: 8px 0; line-height: 1.6;">${cond.explanation}</p>
+                </div>
+            `).join('')}
+        </div>`;
+    }
+    
+    // SERIOUS CONDITIONS
+    if (data.less_likely_but_serious && data.less_likely_but_serious.length > 0) {
+        html += `
+        <div class="result-section" style="border-left: 4px solid #dc3545; background: #fff5f5; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+            <h3 style="color: #dc3545; margin-bottom: 15px;">🔴 Serious Conditions to Rule Out (5-10% probability)</h3>
+            <p style="background: #ffe6e6; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                <strong>⚠️ Important:</strong> While less likely, these conditions should not be missed.
+            </p>
+            ${data.less_likely_but_serious.map(cond => `
+                <div style="background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <h4 style="color: #dc3545; margin-bottom: 10px; font-size: 18px;">${cond.condition}</h4>
+                    <p style="margin: 8px 0; line-height: 1.6;"><strong>🚩 Red flags:</strong> ${cond.red_flags}</p>
+                </div>
+            `).join('')}
+        </div>`;
+    }
+    
+    // CLINICAL RECOMMENDATION
+    if (data.clinical_recommendation) {
+        const rec = data.clinical_recommendation;
+        html += `
+        <div class="result-section" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+            <h3 style="color: #1976d2; margin-bottom: 15px;">📋 Clinical Recommendation</h3>`;
+        
+        // Handle urgency_level or urgency
+        const urgency = rec.urgency_level || rec.urgency || 'See healthcare provider';
+        html += `
+            <p style="margin: 8px 0; font-size: 18px;">
+                <strong>Urgency Level:</strong> 
+                <span style="color: #d32f2f; font-weight: bold; background: #ffebee; padding: 5px 10px; border-radius: 5px;">
+                    ${urgency}
+                </span>
+            </p>
+            <p style="margin: 8px 0; line-height: 1.6;"><strong>Timeframe:</strong> ${rec.timeframe}</p>`;
+        
+        // Handle diagnostic_tests - could be array or string
+        if (rec.diagnostic_tests) {
+            html += `<p style="margin: 15px 0 8px 0;"><strong>Diagnostic tests likely needed:</strong></p>`;
+            
+            if (Array.isArray(rec.diagnostic_tests)) {
+                html += `<ul style="margin: 5px 0; padding-left: 25px;">
+                    ${rec.diagnostic_tests.map(test => `<li style="margin: 5px 0;">${test}</li>`).join('')}
+                </ul>`;
+            } else if (typeof rec.diagnostic_tests === 'string') {
+                const tests = rec.diagnostic_tests.split(/[,\n]+/).map(t => t.trim()).filter(t => t);
+                html += `<ul style="margin: 5px 0; padding-left: 25px;">
+                    ${tests.map(test => `<li style="margin: 5px 0;">${test}</li>`).join('')}
+                </ul>`;
+            } else {
+                html += `<p style="margin: 5px 0;">${rec.diagnostic_tests}</p>`;
+            }
+        }
+        
+        html += `</div>`;
+    }
+    
+    // WHAT TO MONITOR
+    if (data.what_to_monitor) {
+        const monitor = data.what_to_monitor;
+        html += `
+        <div class="result-section" style="background: #fff3cd; border-left: 4px solid #ff9800; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+            <h3 style="color: #f57c00; margin-bottom: 15px;">👁️ What to Monitor</h3>`;
+        
+        // Handle warning_signs - could be array or string
+        if (monitor.warning_signs) {
+            html += `<p style="margin: 8px 0;"><strong>Warning signs:</strong></p>`;
+            
+            if (Array.isArray(monitor.warning_signs)) {
+                html += `<ul style="margin: 5px 0; padding-left: 25px;">
+                    ${monitor.warning_signs.map(sign => `<li style="margin: 5px 0;">${sign}</li>`).join('')}
+                </ul>`;
+            } else if (typeof monitor.warning_signs === 'string') {
+                const signs = monitor.warning_signs.split(/[,\n]+/).map(s => s.trim()).filter(s => s);
+                html += `<ul style="margin: 5px 0; padding-left: 25px;">
+                    ${signs.map(sign => `<li style="margin: 5px 0;">${sign}</li>`).join('')}
+                </ul>`;
+            } else {
+                html += `<p style="margin: 5px 0;">${monitor.warning_signs}</p>`;
+            }
+        }
+        
+        // Handle immediate_care or when_to_seek_immediate_care
+        const immediateCare = monitor.immediate_care || monitor.when_to_seek_immediate_care;
+        if (immediateCare) {
+            html += `
+                <div style="background: #ffebee; border: 2px solid #d32f2f; border-radius: 8px; padding: 15px; margin-top: 15px;">
+                    <p style="color: #d32f2f; font-weight: bold; margin: 0;">
+                        🚨 ${immediateCare}
+                    </p>
+                </div>`;
+        }
+        
+        html += `</div>`;
+    }
+    
+    if (html === '') {
+        return `<div class="result-section">
+            <pre style="white-space: pre-wrap;">${diagnosis}</pre>
+        </div>`;
+    }
+    
+    return html;
+}
+
+        function updateProgress() {
+            const totalQuestions = 7;
+            const currentIndex = currentQuestion ? (
+                ['main_symptom', 'duration', 'severity', 'additional_symptoms', 'age', 'chronic_conditions', 'medications'].indexOf(currentQuestion.id) + 1
+            ) : 1;
+            
+            const progress = (currentIndex / totalQuestions) * 100;
+            $('#progressFill').css('width', progress + '%');
+            $('#progressText').text(`Question ${currentIndex} of ${totalQuestions}`);
+        }
+
+        function resetAssessment() {
+            if (confirm('Start a new assessment?')) {
+                $.ajax({
+                    url: '/reset',
+                    method: 'POST',
+                    success: function() {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
