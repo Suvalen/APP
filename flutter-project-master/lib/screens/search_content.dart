@@ -408,12 +408,15 @@ class _SearchContentState extends State<SearchContent> {
                           color: Colors.grey[600],
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          dateFormat.format(chat.savedAt),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: 'Urbanist',
+                        Flexible(
+                          child: Text(
+                            dateFormat.format(chat.savedAt),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontFamily: 'Urbanist',
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 12),

@@ -52,11 +52,7 @@ class CustomBottomNav extends StatelessWidget {
           ),
 
           // Profile Icon
-          _NavItem(
-            icon: Icons.person,
-            isActive: currentIndex == 2,
-            onTap: () => onTap(2),
-          ),
+          
         ],
       ),
     );

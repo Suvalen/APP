@@ -57,7 +57,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
         // Navigate to home and clear navigation stack
         Navigator.of(context).pushNamedAndRemoveUntil(
-          '/welcome-home',
+          '/loginform',
           (route) => false,
         );
       } else {

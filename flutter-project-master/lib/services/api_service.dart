@@ -14,7 +14,7 @@ class ApiService {
   // For iOS Simulator: 'http://localhost:8080'
   // For Chrome/Web: 'http://localhost:8080'
   // For Real Device: 'http://YOUR_COMPUTER_IP:8080'
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'https://defrayable-disingenuously-annalisa.ngrok-free.dev';
 
   // Singleton Dio instance with cookie jar
   static final Dio _dio = _createDio();
@@ -22,7 +22,7 @@ class ApiService {
   static Dio _createDio() {
     final dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 30),
+      connectTimeout: const Duration(seconds: 60),
       receiveTimeout: const Duration(seconds: 60),
       validateStatus: (status) => status! < 500, // Don't throw on 4xx errors
     ));

@@ -8,14 +8,15 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF7F8FA),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Column(
-            children: [
+        child: SingleChildScrollView(
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              children: [
               // Hero Image Section
               Container(
                 width: double.infinity,
@@ -104,98 +105,19 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(height: 55),
 
                     // Continue With Accounts Text
-                    const Text(
-                      'Continue With Accounts',
-                      style: TextStyle(
-                        color: Color(0xFFACADB9),
-                        fontSize: 16,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: -0.16,
-                      ),
-                    ),
+                    
 
                     const SizedBox(height: 24),
 
                     // Social Login Buttons
-                    Row(
-                      children: [
-                        // Google Button
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              // Add Google sign-in logic here
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Google sign-in coming soon!')),
-                              );
-                            },
-                            child: Container(
-                              height: 57,
-                              decoration: BoxDecoration(
-                                color: const Color(0x3FD44638),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  'GOOGLE',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Color(0xFFD44638),
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 2.55,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 14),
-
-                        // Facebook Button
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              // Add Facebook sign-in logic here
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Facebook sign-in coming soon!')),
-                              );
-                            },
-                            child: Container(
-                              height: 57,
-                              decoration: BoxDecoration(
-                                color: const Color(0x3F4267B2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  'FACEBOOK',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Color(0xFF4267B2),
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 2.55,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                   
                   ],
                 ),
               ),
             ],
           ),
         ),
+      ),
       ),
     );
   }
